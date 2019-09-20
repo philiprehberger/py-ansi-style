@@ -6,7 +6,7 @@
 
 Terminal text styling with zero dependencies and TTY detection.
 
-## Install
+## Installation
 
 ```bash
 pip install philiprehberger-ansi-style
