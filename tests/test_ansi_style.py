@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from unittest import mock
 
-from philiprehberger_ansi_style import bold, red, strip_ansi, style
+from philiprehberger_ansi_style import bg_rgb, bold, hex_color, red, rgb, strip_ansi, style
 
 
 def _enable_tty() -> mock._patch[mock.MagicMock]:
@@ -57,6 +57,54 @@ class TestStyleFunction:
         assert "hello" in result
         assert "1" in result.split("m")[0]
         assert "31" in result.split("m")[0]
+
+
+class TestRgb:
+    def test_rgb_adds_24bit_foreground_when_tty(self) -> None:
+        with _enable_tty() as mock_stdout:
+            mock_stdout.isatty.return_value = True
+            result = rgb("hello", 255, 87, 51)
+        assert result == "\033[38;2;255;87;51mhello\033[0m"
+
+    def test_rgb_returns_plain_text_when_not_tty(self) -> None:
+        with _enable_tty() as mock_stdout:
+            mock_stdout.isatty.return_value = False
+            result = rgb("hello", 255, 87, 51)
+        assert result == "hello"
+
+
+class TestBgRgb:
+    def test_bg_rgb_adds_24bit_background_when_tty(self) -> None:
+        with _enable_tty() as mock_stdout:
+            mock_stdout.isatty.return_value = True
+            result = bg_rgb("hello", 0, 128, 255)
+        assert result == "\033[48;2;0;128;255mhello\033[0m"
+
+    def test_bg_rgb_returns_plain_text_when_not_tty(self) -> None:
+        with _enable_tty() as mock_stdout:
+            mock_stdout.isatty.return_value = False
+            result = bg_rgb("hello", 0, 128, 255)
+        assert result == "hello"
+
+
+class TestHexColor:
+    def test_hex_color_with_hash_prefix(self) -> None:
+        with _enable_tty() as mock_stdout:
+            mock_stdout.isatty.return_value = True
+            result = hex_color("hello", "#FF5733")
+        assert result == "\033[38;2;255;87;51mhello\033[0m"
+
+    def test_hex_color_without_hash_prefix(self) -> None:
+        with _enable_tty() as mock_stdout:
+            mock_stdout.isatty.return_value = True
+            result = hex_color("hello", "00FF00")
+        assert result == "\033[38;2;0;255;0mhello\033[0m"
+
+    def test_hex_color_returns_plain_text_when_not_tty(self) -> None:
+        with _enable_tty() as mock_stdout:
+            mock_stdout.isatty.return_value = False
+            result = hex_color("hello", "#FF5733")
+        assert result == "hello"
 
 
 class TestNoColor:

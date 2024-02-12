@@ -20,6 +20,9 @@ __all__ = [
     "underline",
     "italic",
     "style",
+    "rgb",
+    "bg_rgb",
+    "hex_color",
     "strip_ansi",
 ]
 
@@ -105,6 +108,30 @@ def white(text: str) -> str:
 def gray(text: str) -> str:
     """Apply gray foreground color."""
     return _wrap(text, 90)
+
+
+# 24-bit RGB color functions
+
+
+def rgb(text: str, r: int, g: int, b: int) -> str:
+    """Apply 24-bit RGB foreground color."""
+    if not _is_tty():
+        return text
+    return f"\033[38;2;{r};{g};{b}m{text}\033[0m"
+
+
+def bg_rgb(text: str, r: int, g: int, b: int) -> str:
+    """Apply 24-bit RGB background color."""
+    if not _is_tty():
+        return text
+    return f"\033[48;2;{r};{g};{b}m{text}\033[0m"
+
+
+def hex_color(text: str, hex_code: str) -> str:
+    """Apply foreground color from hex code (e.g., '#FF5733' or 'FF5733')."""
+    h = hex_code.lstrip("#")
+    r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+    return rgb(text, r, g, b)
 
 
 # Style functions

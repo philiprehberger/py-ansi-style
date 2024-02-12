@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0 (2026-04-04)
+
+- Add `rgb()` function for 24-bit RGB foreground colors
+- Add `bg_rgb()` function for 24-bit RGB background colors
+- Add `hex_color()` function for hex color code support
+
 ## 0.1.2 (2026-03-31)
 
 - Standardize README to 3-badge format with emoji Support section
