@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "philiprehberger-ansi-style"
+version = "0.1.0"
+description = "Terminal text styling with zero dependencies and TTY detection."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [{ name = "Philip Rehberger" }]
+keywords = ["ansi", "terminal", "color", "style", "console"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://github.com/philiprehberger/py-ansi-style"
+Repository = "https://github.com/philiprehberger/py-ansi-style"
+Issues = "https://github.com/philiprehberger/py-ansi-style/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/philiprehberger_ansi_style"]
