@@ -24,6 +24,8 @@ __all__ = [
     "bg_rgb",
     "hex_color",
     "strip_ansi",
+    "supports_color",
+    "terminal_link",
 ]
 
 _ANSI_RE = re.compile(r"\033\[[0-9;]*m")
@@ -210,3 +212,20 @@ def style(
 def strip_ansi(text: str) -> str:
     """Remove all ANSI escape codes from text."""
     return _ANSI_RE.sub("", text)
+
+
+def supports_color() -> bool:
+    """Return True if styling will be emitted (stdout is a TTY and NO_COLOR is unset)."""
+    return _is_tty()
+
+
+def terminal_link(text: str, url: str) -> str:
+    """Wrap *text* as an OSC 8 hyperlink pointing to *url*.
+
+    Modern terminals (iTerm2, kitty, WezTerm, recent VTE-based terminals) render
+    the result as a clickable link. When stdout is not a TTY (or NO_COLOR is set)
+    the unformatted text is returned so logs and pipes stay clean.
+    """
+    if not _is_tty():
+        return text
+    return f"\033]8;;{url}\033\\{text}\033]8;;\033\\"

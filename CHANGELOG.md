@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.0 (2026-04-28)
+
+- Add `supports_color()` to expose TTY/`NO_COLOR` detection publicly
+- Add `terminal_link(text, url)` for OSC 8 clickable hyperlinks
+
 ## 0.2.0 (2026-04-04)
 
 - Add `rgb()` function for 24-bit RGB foreground colors

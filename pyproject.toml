@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "philiprehberger-ansi-style"
-version = "0.2.0"
+version = "0.3.0"
 description = "Terminal text styling with zero dependencies and TTY detection."
 readme = "README.md"
 license = "MIT"

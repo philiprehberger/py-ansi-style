@@ -69,6 +69,22 @@ styled = red("hello")
 plain = strip_ansi(styled)  # "hello"
 ```
 
+### Detect color support
+
+```python
+from philiprehberger_ansi_style import supports_color, red
+
+text = red("error") if supports_color() else "error"
+```
+
+### Clickable terminal links
+
+```python
+from philiprehberger_ansi_style import terminal_link
+
+print(terminal_link("Open docs", "https://example.com"))
+```
+
 ## API
 
 | Function | Description |
@@ -87,6 +103,8 @@ plain = strip_ansi(styled)  # "hello"
 | `italic(text)` | Apply italic style |
 | `style(text, *, fg, bg, bold, dim, underline)` | Apply custom combination of colors and styles |
 | `strip_ansi(text)` | Remove all ANSI escape codes from text |
+| `supports_color()` | Return `True` if styling will be emitted (TTY + `NO_COLOR` unset) |
+| `terminal_link(text, url)` | Wrap text as an OSC 8 hyperlink for capable terminals |
 
 ## Development
 

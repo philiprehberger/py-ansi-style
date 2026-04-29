@@ -5,7 +5,17 @@ from __future__ import annotations
 import os
 from unittest import mock
 
-from philiprehberger_ansi_style import bg_rgb, bold, hex_color, red, rgb, strip_ansi, style
+from philiprehberger_ansi_style import (
+    bg_rgb,
+    bold,
+    hex_color,
+    red,
+    rgb,
+    strip_ansi,
+    style,
+    supports_color,
+    terminal_link,
+)
 
 
 def _enable_tty() -> mock._patch[mock.MagicMock]:
@@ -114,3 +124,36 @@ class TestNoColor:
             with mock.patch.dict(os.environ, {"NO_COLOR": "1"}):
                 result = red("hello")
         assert result == "hello"
+
+
+class TestSupportsColor:
+    def test_true_when_tty_and_no_color_unset(self) -> None:
+        with _enable_tty() as mock_stdout:
+            mock_stdout.isatty.return_value = True
+            with mock.patch.dict(os.environ, {}, clear=True):
+                assert supports_color() is True
+
+    def test_false_when_not_tty(self) -> None:
+        with _enable_tty() as mock_stdout:
+            mock_stdout.isatty.return_value = False
+            assert supports_color() is False
+
+    def test_false_when_no_color_set(self) -> None:
+        with _enable_tty() as mock_stdout:
+            mock_stdout.isatty.return_value = True
+            with mock.patch.dict(os.environ, {"NO_COLOR": "1"}):
+                assert supports_color() is False
+
+
+class TestTerminalLink:
+    def test_emits_osc8_when_tty(self) -> None:
+        with _enable_tty() as mock_stdout:
+            mock_stdout.isatty.return_value = True
+            result = terminal_link("docs", "https://example.com")
+        assert result == "\033]8;;https://example.com\033\\docs\033]8;;\033\\"
+
+    def test_returns_plain_when_not_tty(self) -> None:
+        with _enable_tty() as mock_stdout:
+            mock_stdout.isatty.return_value = False
+            result = terminal_link("docs", "https://example.com")
+        assert result == "docs"
