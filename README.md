@@ -4,6 +4,8 @@
 [![PyPI version](https://img.shields.io/pypi/v/philiprehberger-ansi-style.svg)](https://pypi.org/project/philiprehberger-ansi-style/)
 [![Last updated](https://img.shields.io/github/last-commit/philiprehberger/py-ansi-style)](https://github.com/philiprehberger/py-ansi-style/commits/main)
 
+![philiprehberger-ansi-style](https://raw.githubusercontent.com/philiprehberger/py-ansi-style/main/package-card.webp)
+
 Terminal text styling with zero dependencies and TTY detection.
 
 ## Installation
@@ -85,6 +87,23 @@ from philiprehberger_ansi_style import terminal_link
 print(terminal_link("Open docs", "https://example.com"))
 ```
 
+### Force or disable color
+
+```python
+from philiprehberger_ansi_style import color_mode, red, set_color_mode
+
+# Force color even when stdout isn't a TTY (e.g. capturing output in tests)
+with color_mode("always"):
+    print(red("Always red"))
+
+# Disable color for an entire process
+set_color_mode("never")
+```
+
+The `auto` mode also honors the `FORCE_COLOR` env var to enable styling in
+CI logs where stdout is not a TTY. `NO_COLOR` continues to take precedence
+when both are set.
+
 ## API
 
 | Function | Description |
@@ -103,8 +122,10 @@ print(terminal_link("Open docs", "https://example.com"))
 | `italic(text)` | Apply italic style |
 | `style(text, *, fg, bg, bold, dim, underline)` | Apply custom combination of colors and styles |
 | `strip_ansi(text)` | Remove all ANSI escape codes from text |
-| `supports_color()` | Return `True` if styling will be emitted (TTY + `NO_COLOR` unset) |
+| `supports_color()` | Return `True` if styling will be emitted (honors mode + TTY + `NO_COLOR` / `FORCE_COLOR`) |
 | `terminal_link(text, url)` | Wrap text as an OSC 8 hyperlink for capable terminals |
+| `set_color_mode(mode)` | Force `"always"`, `"never"`, or `"auto"` color emission globally |
+| `color_mode(mode)` | Context manager that temporarily overrides the color mode |
 
 ## Development
 

@@ -8,9 +8,11 @@ from unittest import mock
 from philiprehberger_ansi_style import (
     bg_rgb,
     bold,
+    color_mode,
     hex_color,
     red,
     rgb,
+    set_color_mode,
     strip_ansi,
     style,
     supports_color,
@@ -157,3 +159,50 @@ class TestTerminalLink:
             mock_stdout.isatty.return_value = False
             result = terminal_link("docs", "https://example.com")
         assert result == "docs"
+
+
+class TestColorMode:
+    def test_always_forces_emit_without_tty(self) -> None:
+        with _enable_tty() as mock_stdout:
+            mock_stdout.isatty.return_value = False
+            with color_mode("always"):
+                result = red("hello")
+        assert result == "\033[31mhello\033[0m"
+
+    def test_never_suppresses_emit_with_tty(self) -> None:
+        with _enable_tty() as mock_stdout:
+            mock_stdout.isatty.return_value = True
+            with color_mode("never"):
+                result = red("hello")
+        assert result == "hello"
+
+    def test_context_manager_restores_previous(self) -> None:
+        set_color_mode("never")
+        try:
+            with color_mode("always"):
+                assert supports_color() is True
+            assert supports_color() is False
+        finally:
+            set_color_mode("auto")
+
+    def test_invalid_mode_raises(self) -> None:
+        import pytest
+
+        with pytest.raises(ValueError):
+            set_color_mode("loud")  # type: ignore[arg-type]
+
+    def test_force_color_env_overrides_no_tty(self) -> None:
+        with _enable_tty() as mock_stdout:
+            mock_stdout.isatty.return_value = False
+            with mock.patch.dict(os.environ, {"FORCE_COLOR": "1"}, clear=True):
+                result = red("hi")
+        assert result == "\033[31mhi\033[0m"
+
+    def test_no_color_beats_force_color(self) -> None:
+        with _enable_tty() as mock_stdout:
+            mock_stdout.isatty.return_value = True
+            with mock.patch.dict(
+                os.environ, {"FORCE_COLOR": "1", "NO_COLOR": "1"}, clear=True
+            ):
+                result = red("hi")
+        assert result == "hi"

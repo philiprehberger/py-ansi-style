@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0 (2026-06-04)
+
+- Add `set_color_mode(mode)` and `color_mode(mode)` context manager to force `"always"`, `"never"`, or `"auto"` color output regardless of TTY detection (essential for tests and CI logs)
+- Honor the `FORCE_COLOR` env var in `"auto"` mode (`NO_COLOR` still takes precedence)
+- Add `package-card.webp` to README
+
 ## 0.3.0 (2026-04-28)
 
 - Add `supports_color()` to expose TTY/`NO_COLOR` detection publicly

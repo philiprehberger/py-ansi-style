@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import contextlib
 import os
 import re
 import sys
+from typing import Iterator, Literal
 
 __all__ = [
     "red",
@@ -26,7 +28,45 @@ __all__ = [
     "strip_ansi",
     "supports_color",
     "terminal_link",
+    "set_color_mode",
+    "color_mode",
 ]
+
+ColorMode = Literal["auto", "always", "never"]
+_mode: ColorMode = "auto"
+
+
+def set_color_mode(mode: ColorMode) -> None:
+    """Override TTY detection for all styling helpers.
+
+    Args:
+        mode: ``"auto"`` (default — honor TTY, ``NO_COLOR``, ``FORCE_COLOR``),
+            ``"always"`` (always emit ANSI codes), or ``"never"`` (never emit).
+
+    Raises:
+        ValueError: If *mode* is not one of the accepted values.
+    """
+    global _mode
+    if mode not in ("auto", "always", "never"):
+        raise ValueError(
+            f"mode must be 'auto', 'always', or 'never'; got {mode!r}"
+        )
+    _mode = mode
+
+
+@contextlib.contextmanager
+def color_mode(mode: ColorMode) -> Iterator[None]:
+    """Temporarily override the color mode within a ``with`` block.
+
+    The prior mode is restored on exit, including on exception.
+    """
+    global _mode
+    previous = _mode
+    set_color_mode(mode)
+    try:
+        yield
+    finally:
+        _mode = previous
 
 _ANSI_RE = re.compile(r"\033\[[0-9;]*m")
 
@@ -56,9 +96,20 @@ _BG_CODES: dict[str, int] = {
 
 
 def _is_tty() -> bool:
-    """Return True if stdout is a TTY and NO_COLOR is not set."""
+    """Return True if styling should be emitted.
+
+    Honors :func:`set_color_mode` overrides first, then falls back to TTY
+    detection. In ``"auto"`` mode, ``NO_COLOR`` disables styling and
+    ``FORCE_COLOR`` (any non-empty value) enables it.
+    """
+    if _mode == "always":
+        return True
+    if _mode == "never":
+        return False
     if os.environ.get("NO_COLOR") is not None:
         return False
+    if os.environ.get("FORCE_COLOR"):
+        return True
     return hasattr(sys.stdout, "isatty") and sys.stdout.isatty()
 
 
